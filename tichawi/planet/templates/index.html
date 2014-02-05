@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% load staticfiles i18n math_helper %}
+
+{% block title %}{% trans "Prima pagina" %}{% endblock %}
+
+{% block container %}
+      <div class="jumbotron">
+        <h1>{% trans "Notizie 5 Stelle" %}</h1>
+        <p class="text-muted">
+          &mdash; {% trans "Le ultime da Senato e Parlamento 5 Stelle. Gli articoli sono ordinati in base al loro punteggio" %}.
+        </p>
+      </div>
+      <div class="row">
+        <div id="article-listing-container" class="col-md-9">
+          {% for article in articles|dictsortreversed:"hotness" %}
+          <div class="article-summary {{ article.feed.category.short_name }}">
+            <h4>
+              <a href="{% url 'detail' article.id %}">{{ article.title|striptags }}</a>
+              <small>({{ article.feed.category.long_name }})</small>
+            </h4>
+            {{ article.summary|striptags }}
+            <h6 class="text-right">
+              <small class="text-muted">
+                {{ article.pub_time }} /
+                <span class="badge">{{ article.score|votes_to_human }}</span>
+              </small>
+            </h6>
+            <hr />
+          </div>
+          {% endfor %}
+        </div>
+        <div class="col-md-3">
+          <ul class="nav nav-pills nav-stacked">
+            {% for category in categories %}
+            <li class="category-button {{ category.short_name }}">
+              <a href="javascript: highlight_category('{{ category.short_name }}');">
+                {{ category.long_name }}
+              </a>
+            </li>
+            {% endfor %}
+            <li class="category-button all active">
+              <a href="javascript: highlight_category('all');">
+                {% trans "Tutti" %}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+{% endblock %}
+
+{% block pagejs %}
+    <script src="{% static 'js/index.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% load staticfiles i18n math_helper %}
+
+{% block title %}{{ article.title|striptags }}{% endblock %}
+
+{% block container %}
+      <div class="page-header">
+        <h1>{{ article.title|striptags }}</h1>
+        <p class="text-muted">
+          &mdash; {% trans "aggiornato" %} {{ article.pub_time }}
+        </p>
+      </div>
+      <div class="row">
+        <div class="col-md-9">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              {% trans "postato in" %} {{ article.feed.category.long_name }}
+              {% trans "ha" %}
+              <span id="{{ article.id }}_vnum">{{ article.score|votes_to_human }}</span>
+              {% trans "voti" %}
+            </div>
+            <div class="panel-body">
+              {% autoescape off %}
+              {{ article.content }}
+              {% endautoescape %}
+            </div>
+          </div>
+          <a href="{% url 'index' %}" class="btn btn-lg btn-primary">
+            {% trans "Indietro" %}
+          </a>
+          <a href="javascript: vote('{% url 'vote' article.id %}');"
+             id="{{ article.id }}_vact"
+             class="btn btn-lg btn-warning pull-right
+                    {% for v in article.voters.all %}
+                    {% if request.user.id == v.id %}disabled{% endif %}
+                    {% endfor %}
+                    ">
+              +1
+          </a>
+          <hr />
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <div id="disqus_thread"></div>
+              <script type="text/javascript">
+                var disqus_shortname = 'tichawi';
+                var disqus_identifier = '{{ article.source_url }}';
+
+                (function() {
+                    var dsq = document.createElement('script');
+                    dsq.type = 'text/javascript';
+                    dsq.async = true;
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                 })();
+              </script>
+              <noscript>
+                Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+              </noscript>
+              <!-- <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a> -->
+            </div>
+          </div>
+        <div class="col-md-3">
+        </div>
+      </div>
+{% endblock %}
+
+{% block pagejs %}
+    <script src="{% static 'js/article.js' %}"></script>
+{% endblock %}
